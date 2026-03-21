@@ -124,3 +124,16 @@ def process_file(input_file, output_folder, file_type):
         "accepted_rows": len(cleaned_rows),
         "rejected_rows": len(rejected_rows)
     }
+
+if __name__ == "__main__":
+    input_train = "data/train.csv"
+    input_test = "data/test.csv"
+    output_folder = "output"
+
+    print("Processing TRAIN file...")
+    result_train = process_file(input_train, output_folder, "train")
+    print(result_train)
+
+    print("\nProcessing TEST file...")
+    result_test = process_file(input_test, output_folder, "test")
+    print(result_test)
