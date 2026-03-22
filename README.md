@@ -43,6 +43,3 @@ Input CSV headers must **exactly** match either the **train** schema (includes `
 
 `processing.process_data(input_path: str)` returns `(cleaned_df, rejected_df)` as pandas `DataFrame`s. The CLI and `analysis` modules depend on that contract.
 
-## License / data
-
-Add your course or team license and data attribution here if required.
