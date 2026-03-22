@@ -1,0 +1,3 @@
+# Python 3.11+ required (type hints, pathlib usage as in repo).
+# pandas: DataFrames from process_data(), stats in analysis.py, CSV writes in main.py.
+pandas>=2.0,<3
