@@ -1,6 +1,9 @@
 import csv
 import os
-from schema import  (
+
+import pandas as pd
+
+from schema import (
     TRAIN_COLUMNS,
     TEST_COLUMNS,
     REQUIRED_COLUMNS,
@@ -124,6 +127,60 @@ def process_file(input_file, output_folder, file_type):
         "accepted_rows": len(cleaned_rows),
         "rejected_rows": len(rejected_rows)
     }
+
+
+def _infer_file_type(columns):
+    """
+    Decide train vs test from header row only.
+
+    Returns "train", "test", or None if headers do not match schema exactly.
+    """
+    if columns is None:
+        return None
+    cols = list(columns)
+    if cols == TRAIN_COLUMNS:
+        return "train"
+    if cols == TEST_COLUMNS:
+        return "test"
+    return None
+
+
+def process_data(input_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Main integration API: one input CSV path -> (cleaned_df, rejected_df).
+
+    - Headers must match TRAIN_COLUMNS or TEST_COLUMNS exactly (order matters).
+    - rejected_df has the same feature columns plus a string column "reason".
+    - Empty data (valid header, zero rows) yields empty DataFrames with correct dtypes/columns.
+    """
+    columns, rows = load_csv(input_path)
+    file_type = _infer_file_type(columns)
+    if file_type is None:
+        raise ValueError(
+            "CSV headers must exactly match train or test schema (see schema.py)."
+        )
+
+    expected_columns = TRAIN_COLUMNS if file_type == "train" else TEST_COLUMNS
+    cleaned_rows = []
+    rejected_rows = []
+    seen_ids = set()
+
+    for row in rows:
+        cleaned_row = clean_row(row, expected_columns)
+        is_valid, reason = validate_row(cleaned_row, seen_ids, file_type)
+        if is_valid:
+            cleaned_rows.append(cleaned_row)
+        else:
+            rejected = cleaned_row.copy()
+            rejected["reason"] = reason
+            rejected_rows.append(rejected)
+
+    # columns= keeps column order even when there are zero rows
+    cleaned_df = pd.DataFrame(cleaned_rows, columns=expected_columns)
+    rejected_headers = expected_columns + ["reason"]
+    rejected_df = pd.DataFrame(rejected_rows, columns=rejected_headers)
+    return cleaned_df, rejected_df
+
 
 if __name__ == "__main__":
     input_train = "data/train.csv"
