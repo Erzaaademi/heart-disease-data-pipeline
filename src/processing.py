@@ -41,10 +41,13 @@ def check_columns(actual_columns, file_type):
 
 
 def validate_row(row, seen_ids, file_type):
+
+    # Check required fields
     for column in REQUIRED_COLUMNS:
         if row.get(column) is None:
             return False, f"missing required value in {column}"
 
+    # Validate numeric columns
     for column, (min_value, max_value) in NUMERIC_RANGES.items():
         value = row.get(column)
 
@@ -58,7 +61,8 @@ def validate_row(row, seen_ids, file_type):
 
         if number < min_value or number > max_value:
             return False, f"out of range value in {column}"
-
+    
+     # Check duplicate IDs
     row_id = row["id"]
     if row_id in seen_ids:
         return False, "duplicate id"
@@ -113,12 +117,14 @@ def process_file(input_file, output_folder, file_type):
 
     os.makedirs(output_folder, exist_ok=True)
 
+    # Output file paths
     cleaned_file = os.path.join(output_folder, f"{file_type}_cleaned_data.csv")
     rejected_file = os.path.join(output_folder, f"{file_type}_rejected_data.csv")
 
     cleaned_headers = expected_columns
     rejected_headers = expected_columns + ["reason"]
-
+ 
+    # Save results
     save_csv(cleaned_file, cleaned_rows, cleaned_headers)
     save_csv(rejected_file, rejected_rows, rejected_headers)
 
@@ -181,7 +187,7 @@ def process_data(input_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     rejected_df = pd.DataFrame(rejected_rows, columns=rejected_headers)
     return cleaned_df, rejected_df
 
-
+#Run pipeline manually for both TRAIN and TEST datasets.
 if __name__ == "__main__":
     input_train = "data/train.csv"
     input_test = "data/test.csv"

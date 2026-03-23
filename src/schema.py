@@ -50,11 +50,11 @@ REQUIRED_COLUMNS = [
 
 NUMERIC_RANGES = {
     "id": (0, 10000000),
-    "Age": (1, 120),
+    "Age": (1, 100),
     "Sex": (0, 1),
     "Chest pain type": (1, 4),
-    "BP": (1, 300),
-    "Cholesterol": (1, 700),
+    "BP": (1, 250),
+    "Cholesterol": (1, 500),
     "FBS over 120": (0, 1),
     "EKG results": (0, 2),
     "Max HR": (1, 250),
